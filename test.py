@@ -9,7 +9,7 @@ class Message(object):
 		self.message = message
 		self.timeObj = timeObj
 
-m = Message("+18584650988","*message here*", {"tm_hour":18,"tm_min":55})
+m = Message("+***********","*message here*", {"tm_hour":18,"tm_min":55})
 
 mList = [m]
 
