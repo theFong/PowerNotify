@@ -1,1 +1,3 @@
 *.p
+.aws
+log.txt

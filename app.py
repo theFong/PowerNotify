@@ -12,9 +12,9 @@ class Message(object):
 		self.message = message
 		self.timeObj = timeObj
 
-def checkSend():
+def checkSend(msgs):
 	timeObj = time.localtime(time.time())
-	for x in messageList:
+	for x in msgs:
 		if getattr(timeObj,"tm_hour") == x.timeObj["tm_hour"] and getattr(timeObj,"tm_min") == x.timeObj["tm_min"]:
 			client = boto3.client('sns')
 			response = client.publish(
@@ -27,8 +27,8 @@ def checkSend():
 			fh.writelines([str(response),str(timeObj),str(vars(x)),"\n"])
 			fh.close	
 
-messageList = pickle.load( open( "save.p", "rb" ))	
+messageList = pickle.load( open( "save.p", "rb" ))
 
 while True:
-	checkSend()
+	checkSend(messageList)
 	time.sleep(min)

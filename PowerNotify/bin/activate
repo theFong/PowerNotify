@@ -76,3 +76,6 @@ pydoc () {
 if [ -n "${BASH-}" ] || [ -n "${ZSH_VERSION-}" ] ; then
     hash -r 2>/dev/null
 fi
+
+export AWS_CONFIG_FILE="/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/config"
+export AWS_SHARED_CREDENTIALS_FILE="/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/credentials"
