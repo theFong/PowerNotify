@@ -1,6 +1,6 @@
 import boto3
 import time
-import cPickle as pickle
+import pickle
 
 min = 60
 filename = "log.txt"

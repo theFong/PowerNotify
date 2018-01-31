@@ -1,6 +1,6 @@
 import boto3
 import time
-import cPickle as pickle
+import pickle
 
 class Message(object):
 	"""docstring for Message"""
