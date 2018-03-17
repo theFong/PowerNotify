@@ -1,11 +1,7 @@
 *.p
 .aws
 log.txt
-<<<<<<< HEAD
 .vscode
 PowerNotifyEnv
 client_secret.json
-=======
-PowerNotify
-PowerNotify3
->>>>>>> f9911267da3bc7adc46e18c31aa4af85300c7b75
+Alec.pem

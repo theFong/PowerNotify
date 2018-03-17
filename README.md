@@ -9,4 +9,11 @@ Can personalize message by specifiying message in description of event
 
 Run python app.py and give permission to access respective google account
 
-Note: Make sure to add .aws folder and set env variables in activate of environment
+
+Note: Make sure to add .aws folder and set env variables in activate of environment, add client_secret.json in working dir, add ~/.credentials/calendar-powernotify-token.json if no browser
+
+`
+export AWS_CONFIG_FILE=/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/config
+
+export AWS_SHARED_CREDENTIALS_FILE=/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/credentials
+`
