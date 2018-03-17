@@ -6,9 +6,11 @@
 
 Push SMS notifications for critical events on Google Calendar
 
-Create event on Google calendar with "#PowerNotify" in title/summary and "1xxxxxxxxxx" (11 digit phone number) in location of event. Send personalized messages by adding a description to the Google event.
+### How
 
-### Deploy
+Create event on Google calendar with "#PowerNotify" in title/summary and "1xxxxxxxxxx" (11 digit phone number) in location of event. Send a personalized message instead of title/summary by adding a description to the Google event.
+
+### Build
 
 Install Dependencies
 `pip install -r requirements.txt`
