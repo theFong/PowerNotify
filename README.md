@@ -25,3 +25,5 @@ Note: Make sure to add .aws folder and set env variables in activate of environm
 `export AWS_CONFIG_FILE=/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/config`
 
 `export AWS_SHARED_CREDENTIALS_FILE=/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/credentials`
+
+![screen shot](https://raw.githubusercontent.com/theFong/PowerNotify/master/Screen%20Shot%202018-03-17%20at%203.40.12%20PM.png)
