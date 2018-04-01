@@ -2,16 +2,21 @@
 from __future__ import print_function
 import httplib2
 import os
+import sys
 import boto3
 
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from googleapiclient.errors import HttpError
+from retrying import retry
 
 import datetime
 import dateutil.parser
 import time
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 try:
     import argparse
@@ -27,6 +32,18 @@ APPLICATION_NAME = 'Google Calendar API Power Notify'
 LOG_FILE = 'log.txt'
 MINUTE = 60.0
 
+# action decorator
+def action(tag):
+    """
+    decorator that checks if tag exists before calling action
+    """
+    def action_decorator(func):
+        def check_tag_wrapper(event_dict):
+            if event_dict and event_dict['summary']:
+                if tag.lower() in event_dict['summary'].lower():
+                    return func(event_dict)
+        return check_tag_wrapper
+    return action_decorator
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -38,9 +55,10 @@ def get_credentials():
         Credentials, the obtained credential.
     """
     home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = os.path.join(sys.path[len(sys.path)-1], '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
+    print(credential_dir)
     credential_path = os.path.join(credential_dir,
                                    'calendar-powernotify-token.json')
 
@@ -69,6 +87,7 @@ def send_sms_message(number,msg):
     fh.writelines([ 'number: '+number, ', message: '+msg ,', response: '+str(response),', time: '+str(datetime.datetime.now(datetime.timezone.utc)),"\n"])
     fh.close
 
+@action('#powernotify')
 def send_text_notificaton(event_dict):
     """
     takes in calendar event
@@ -76,12 +95,14 @@ def send_text_notificaton(event_dict):
     PhoneNumber = location
     Message = description
     """
-    if('#powernotify' in event_dict['summary'].lower() and 'location' in event_dict and event_dict['location']):
+    if('location' in event_dict and event_dict['location']):
         number = form_phone_number(event_dict['location'])
         send_sms_message(number, event_dict['description']) if event_dict['description'] else send_sms_message(number, event_dict['summary'])
 
 def time_in_range(start, end, x):
-    """Return true if x is in the range [start, end]"""
+    """
+    Return true if x is in the range [start, end]
+    """
     if start <= end:
         return start <= x <= end
     else:
@@ -93,24 +114,40 @@ def form_phone_number(num_str):
     else:
         return '+'+num_str
 
+def is_retriable_error(exception):
+    """
+    Check if certain http error
+    """
+    if isinstance(exception, HttpError):
+        return exception.resp.status in [403, 500, 503]
+    else:
+        return False
+
+@retry(retry_on_exception=is_retriable_error, wait_exponential_multiplier=1000, wait_exponential_max=10000)
+def get_google_cal_events():
+    """
+    gets most recent google cal event
+    """
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+
+    eventsResult = service.events().list(
+    calendarId='primary', timeMin=now, maxResults=1, singleEvents=True,
+    orderBy='startTime').execute()
+    events = eventsResult.get('items', []) 
+    return events
+
 def event_loop(actions):
     """
     checks every minute for event at current time
-    calls 
+    calls. limit to one event at the same time
     """
     while(True):
 
-        credentials = get_credentials()
-        http = credentials.authorize(httplib2.Http())
-        service = discovery.build('calendar', 'v3', http=http)
-
-        now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-
-        eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=1, singleEvents=True,
-        orderBy='startTime').execute()
-        events = eventsResult.get('items', []) 
-
+        events = get_google_cal_events()
         # if an upcoming events exist
         if events:
             eventTime = dateutil.parser.parse(events[0]['start']['dateTime'])
@@ -126,7 +163,7 @@ def main():
     register actions
     call event loop
     """
-    actions = [send_text_notificaton]
+    actions = [ send_text_notificaton ]
     event_loop(actions)
 
 
