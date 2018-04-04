@@ -15,6 +15,7 @@ from retrying import retry
 import datetime
 import dateutil.parser
 import time
+import email_creds
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
@@ -58,7 +59,6 @@ def get_credentials():
     credential_dir = os.path.join(sys.path[len(sys.path)-1], '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    print(credential_dir)
     credential_path = os.path.join(credential_dir,
                                    'calendar-powernotify-token.json')
 
@@ -163,8 +163,35 @@ def main():
     register actions
     call event loop
     """
-    actions = [ send_text_notificaton ]
-    event_loop(actions)
+    try:
+        actions = [ send_text_notificaton ]
+        event_loop(actions)
+    except Exception as e:
+        send_email(email_creds.email, email_creds.password, email_creds.email, 'POWERNOTIFY FAILURE', str(datetime.datetime.now(datetime.timezone.utc))+' UTC')
+        raise e
+
+# deprecated for gmail, must turn on unsecure apps in gmail if you want to use
+def send_email(user, pwd, recipient, subject, body):
+    import smtplib
+
+    FROM = user
+    TO = recipient if type(recipient) is list else [recipient]
+    SUBJECT = subject
+    TEXT = body
+
+    # Prepare actual message
+    message = """From: %s\nTo: %s\nSubject: %s\n\n%s
+    """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.ehlo()
+        server.starttls()
+        server.login(user, pwd)
+        server.sendmail(FROM, TO, message)
+        server.close()
+        print('successfully sent the mail')
+    except:
+        print("failed to send mail")
 
 
 if __name__ == '__main__':

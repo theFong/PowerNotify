@@ -6,3 +6,6 @@ PowerNotifyEnv
 client_secret.json
 Alec.pem
 .credentials
+env
+email_creds.py
+__pycache__
