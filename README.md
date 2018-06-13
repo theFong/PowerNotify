@@ -2,6 +2,7 @@
 
 * Python 3.6.4
 * AWS SNS
+* AWS S3
 * Google Calendar API
 
 Push SMS notifications for critical events on Google Calendar
@@ -31,7 +32,8 @@ Note: Make sure to add .aws folder and set env variables in activate of environm
 ### Build Serverless
 Run this on AWS Lambda
 
-Install Dependencies
+Install Dependencies:
+
 `python3 -m venv env`
 `source env/bin/activate`
 `pip install -r requirements.txt`
@@ -40,15 +42,19 @@ Run locally once to generate .credentials/calendar-powernotify-token.json.
 Put calendar-powernotify-token.json in S3 bucket in region the same as your planned Lambda function.
 Make sure you create a user, lambda role, and update lambda_deploy.sh.
 
-Build
+Build:
+
 `bash lambda_make.sh`
 
-Deploy
+Deploy:
+
 `cd lambda_zip/`
+
 `bash ../lambda_deploy.sh`
 
-Configure Trigger
-Go into aws console/lambda and setup a CloudWatch event with rule
+Configure Trigger:
+
+On aws console/lambda, setup a CloudWatch event with rule
 `cron(* * * * ? *)`
 
 ![screen shot](https://raw.githubusercontent.com/theFong/PowerNotify/master/Screen%20Shot%202018-03-17%20at%203.40.12%20PM.png)
