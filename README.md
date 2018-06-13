@@ -10,14 +10,14 @@ Push SMS notifications for critical events on Google Calendar
 
 Create event on Google calendar with "#PowerNotify" in title/summary and "1xxxxxxxxxx" (11 digit phone number) in location of event. Send a personalized message instead of title/summary by adding a description to the Google event.
 
-### Build
+### Build Server
 
 Install Dependencies
 `pip install -r requirements.txt`
 
 Configure AWS CLI making sure AWS_CONFIG_FILE and AWS_SHARED_CREDENTIALS_FILE is set.
 
-Add Google API client client_secret.json file is in working dir.
+Add Google API client client_secret.json file in working dir.
 
 Run python app.py with a browser and give permissions to access respective google account
 `python app.py`
@@ -28,4 +28,31 @@ Note: Make sure to add .aws folder and set env variables in activate of environm
 
 `export AWS_SHARED_CREDENTIALS_FILE=/Users/AlecFong/GoogleDrive/WorkStation/PowerNotify/.aws/credentials`
 
+### Build Serverless
+Run this on AWS Lambda
+
+Install Dependencies
+`python3 -m venv env`
+`source env/bin/activate`
+`pip install -r requirements.txt`
+
+Run locally once to generate .credentials/calendar-powernotify-token.json.
+Put calendar-powernotify-token.json in S3 bucket in region the same as your planned Lambda function.
+Make sure you create a user, lambda role, and update lambda_deploy.sh.
+
+Build
+`bash lambda_make.sh`
+
+Deploy
+`cd lambda_zip/`
+`bash ../lambda_deploy.sh`
+
+Configure Trigger
+Go into aws console/lambda and setup a CloudWatch event with rule
+`cron(* * * * ? *)`
+
 ![screen shot](https://raw.githubusercontent.com/theFong/PowerNotify/master/Screen%20Shot%202018-03-17%20at%203.40.12%20PM.png)
+
+
+
+

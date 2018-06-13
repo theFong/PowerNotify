@@ -55,33 +55,6 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(sys.path[len(sys.path)-1], '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'calendar-powernotify-token.json')
-    store = Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
-
-def get_credentialsS3():
-    """Gets valid user credentials from storage.
-
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
-
-    Returns:
-        Credentials, the obtained credential.
-    """
     s3 = boto3.resource('s3')
 
     obj = s3.Object('zipped-code','calendar-powernotify-token.json')
@@ -107,9 +80,7 @@ def send_sms_message(number,msg):
         MessageAttributes={}
     )
     # log text sent
-    fh = open(LOG_FILE, "a")
-    fh.writelines([ 'number: '+number, ', message: '+msg ,', response: '+str(response),', time: '+str(datetime.datetime.now(datetime.timezone.utc)),"\n"])
-    fh.close
+    print('\n#MessageSent','number: '+number, ', message: '+msg ,', response: '+str(response),', time: '+str(datetime.datetime.now(datetime.timezone.utc)),'\n')
 
 @action('#powernotify')
 def send_text_notificaton(event_dict):
